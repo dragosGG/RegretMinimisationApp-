@@ -2,16 +2,25 @@ import React from "react";
 import { StyleSheet, Text, TextInput, View, Button } from "react-native";
 import InputSection from "./inputSection";
 import * as firebase from "firebase";
+import 'firebase/firestore';
 
 firebase.initializeApp({
-  databaseURL: "https://regret-minimisation-project.firebaseio.com"
+  apiKey: "AIzaSyBCPmZN72zgmaorpwkfrPUHwU5tr6MESN8",
+  databaseURL: "https://regret-minimisation-project.firebaseio.com",
+  projectId: "regret-minimisation-project",
 });
+
+const firestore = firebase.firestore();
+firestore.settings({
+  timestampsInSnapshots: true,
+})
 
 export default class Homescreen extends React.Component {
   state = {
     sadReasons: ["", "", ""],
     gladReasons: ["", "", ""],
-    rating: ""
+    rating: "",
+    data: [],
   };
 
   handleValueChange = (text, index) => {
@@ -25,18 +34,30 @@ export default class Homescreen extends React.Component {
   };
 
   handlePress = () => {
-    firebase
-      .firestore()
-      .collection("SadGlad")
-      .add({ date: new Date().getTime(), tag: "SAD", text: "asdfsafasdfsd" })
-      .then(response => {
-        console.log(response);
-      });
+    firestore.collection('restaurants').get().then(response => {
+      let data = []
+      response.forEach(doc => {
+        data = [...data, doc];
+      })
+      console.log(data);
+      this.setState({
+        data
+      })
+    })
+
+    // firebase
+    //   .firestore()
+    //   .collection("SadGlad")
+    //   .add({ date: new Date().getTime(), tag: "SAD", text: "asdfsafasdfsd" })
+    //   .then(response => {
+    //     console.log(response);
+    //   });
   };
 
   render() {
     return (
       <View style={styles.container}>
+        <Text>{JSON.stringify('data: ', this.state.data)}</Text>
         <InputSection
           title="SAD"
           onValueChange={this.handleValueChange}
